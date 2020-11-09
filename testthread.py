@@ -8,6 +8,7 @@ import datetime
 import botocore
 import numpy
 import sys
+import matplotlib.pyplot as pl
 
 if 'use_dax' in sys.argv:
     import amazondax
@@ -69,6 +70,7 @@ query={ 'TableName':tablename,
       }
 
 querytimes=[]
+querysizes=[]
 i = 0
 highest=0
 savedquery=None
@@ -84,6 +86,7 @@ try:
         print("Query time:",responsetime)
         if i!=0:
             querytimes.append(responsetime)
+            querysizes.append(len(response['Item']['async-aggregates-plastic']['B']))
             if responsetime>highest:
                 highest=responsetime 
                 savedquery=query
@@ -91,7 +94,7 @@ try:
             print(responsetime,query)
             #time.sleep(2)
         i+=1
-        if i>50000:
+        if i>10000:
             break
 except KeyboardInterrupt:
     pass
@@ -101,4 +104,24 @@ if True:
     print("P50, P99, P99.99",numpy.percentile(querytimes,[50,99,99.99]))
     countbad = numpy.count_nonzero(numpy.array(querytimes)>65)
     print(countbad,len(querytimes),100-countbad/len(querytimes)*100)
+
+    figfilename="ddb-threads-%i.png"%(threads_per_query)
+
+    pl.figure()
+    fig = pl.hist(querytimes,log=True,bins=30)
+    pl.title('Query latency at %i parallel threads'%(threads_per_query))
+    pl.xlabel('latency')
+    pl.ylabel('Frequency')
+    pl.savefig("histogram-"+figfilename)
+    pl.clf()
+    pl.figure()
+    fig = pl.scatter(querysizes,querytimes,marker=",",s=5)
+    pl.xlabel('Response Size')
+    pl.ylabel('Response Time')
+    pl.ylim(0, 200)
+    pl.title('Response Time to Size at %i parallel threads'%(threads_per_query))
+    pl.savefig("sizetime-"+figfilename)
+
+    lf=numpy.polyfit(querysizes,querytimes,1)
+    print(lf[0],lf[1],lf[1]+lf[0]*200,lf[1]+lf[0]*200000,lf[1]+lf[0]*400000)
 
