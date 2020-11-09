@@ -77,13 +77,13 @@ savedquery=None
 try:
     while True:
         (accountid,plasticid)=getrandomfeature()
-        print(accountid,plasticid)
+        #print(accountid,plasticid)
         query["Key"]["accountDataLookupKey"]["S"]=accountid
         query["Key"]["sortQualifier"]["S"]="sortQualifier=plasticId#"+plasticid
         starttime=datetime.datetime.now()
         response=doquery(query) 
         responsetime=(datetime.datetime.now()-starttime).total_seconds()*1000
-        print("Query time:",responsetime)
+        #print("Query time:",responsetime)
         if i!=0:
             querytimes.append(responsetime)
             querysizes.append(len(response['Item']['async-aggregates-plastic']['B']))
@@ -92,6 +92,8 @@ try:
                 savedquery=query
         if responsetime>65:
             print(responsetime,query)
+            print(response['ResponseMetadata'])
+            print()
             #time.sleep(2)
         i+=1
         if i>10000:
@@ -112,13 +114,15 @@ if True:
     pl.title('Query latency at %i parallel threads'%(threads_per_query))
     pl.xlabel('latency')
     pl.ylabel('Frequency')
+    pl.xlim(0,200)
+    pl.ylim(.90,6000)
     pl.savefig("histogram-"+figfilename)
     pl.clf()
     pl.figure()
     fig = pl.scatter(querysizes,querytimes,marker=",",s=5)
     pl.xlabel('Response Size')
     pl.ylabel('Response Time')
-    pl.ylim(0, 200)
+    pl.ylim(0, 150)
     pl.title('Response Time to Size at %i parallel threads'%(threads_per_query))
     pl.savefig("sizetime-"+figfilename)
 
