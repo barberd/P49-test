@@ -114,7 +114,7 @@ if True:
     pl.title('Query latency at %i parallel threads'%(threads_per_query))
     pl.xlabel('latency')
     pl.ylabel('Frequency')
-    pl.xlim(0,200)
+    pl.xlim(0,125)
     pl.ylim(.90,6000)
     pl.savefig("histogram-"+figfilename)
     pl.clf()
