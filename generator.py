@@ -13,8 +13,6 @@ import botocore
 tablename='cerberus-test2'
 ddb=boto3.client('dynamodb')
 
-retryerrors=['ProvisionedThroughputExceededException','ThrottlingException','RequestLimitExceeded']
-
 def do_batch_write_call(RequestItems):
     retries=0
     while True:
