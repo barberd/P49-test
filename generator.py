@@ -25,8 +25,6 @@ def do_batch_write_call(RequestItems):
             print("Got Error:",err," retrying...")
             time.sleep(max(2 ** retries,60)+random.randint(-5,5))
             retries +=1
-            if retries>10:
-                raise
 
 def processbatch(items):
     request={tablename:[{'PutRequest':{'Item':i}} for i in items]}
