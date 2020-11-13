@@ -8,13 +8,10 @@ import os
 import base64
 import time
 import concurrent.futures
-import math
 import botocore
 
 tablename='cerberus-test2'
 ddb=boto3.client('dynamodb')
-
-retryerrors=['ProvisionedThroughputExceededException','ThrottlingException','RequestLimitExceeded']
 
 def do_batch_write_call(RequestItems):
     retries=0
@@ -26,10 +23,8 @@ def do_batch_write_call(RequestItems):
             if err.response['Error']['Code'] not in ['ProvisionedThroughputExceededException','ThrottlingException','RequestLimitExceeded']:
                 raise
             print("Got Error:",err," retrying...")
-            time.sleep(math.ceil(2 ** retries,60)+random.randint(-5,5))
+            time.sleep(max(2 ** retries,60)+random.randint(-5,5))
             retries +=1
-            if retries>10:
-                raise
 
 def processbatch(items):
     request={tablename:[{'PutRequest':{'Item':i}} for i in items]}

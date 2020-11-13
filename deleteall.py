@@ -2,7 +2,7 @@
 
 import boto3
 
-TABLE = "cerberus-test"
+TABLE = "cerberus-test2"
 
 table = boto3.resource('dynamodb').Table(TABLE)
 scan = None
